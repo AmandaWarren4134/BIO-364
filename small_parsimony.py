@@ -72,33 +72,42 @@ def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
 
 # AMANDA
 # Take the input .txt file and parse it to grab the integer and create a dictionary
-def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, str]]:
+def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, List[str]]]:
+    # Take the first line as n
     n = int(input_lines[0].strip())
-    edge_dict: Dict[str, str] = {}
+    edge_dict: Dict[str, List[str]] = {}
 
+    # Each line is in the format 4->ACCTGCAGCTCA
+    # Split on the -> and save everything it points to to an adjacency list
     for line in input_lines[1:]:
         node, rest = line.strip().split("->")
-        edge_dict[node] = str()
+        if node not in edge_dict:
+            edge_dict[node] = [rest]
+        else:
+            edge_dict[node].append(rest)
 
     return n, edge_dict
 
 def main():
-    # parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
-    # parser.add_argument("input_file", help="Path to input file.")
+    parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
+    parser.add_argument("input_file", help="Path to input file.")
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
-    # with open(args.input_file, 'r') as file:
-    #     input_data = file.readlines()
+    with open(args.input_file, 'r') as file:
+        input_data = file.readlines()
     
-    # n, edge_dict = process_lines(input_data)
+    n, edge_dict = process_lines(input_data)
 
-    tree = {
-    "4": ["CAAATCCC", "ATTGCGAC"],
-    "5": ["CTGCGCTG", "ATGGACGA"],
-    "6": ["4", "5"]
-    }
-    print(build_T(tree))
+    print("N: ", n)
+    print("Edge_dict: ", edge_dict)
+
+    # tree = {
+    # "4": ["CAAATCCC", "ATTGCGAC"],
+    # "5": ["CTGCGCTG", "ATGGACGA"],
+    # "6": ["4", "5"]
+    # }
+    # print(build_T(tree))
 
 if __name__ == "__main__":
     main()
