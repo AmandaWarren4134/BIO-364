@@ -37,26 +37,54 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
             T[v]["ripe"] = False
             ripe_set.remove(v)
             for nuc in T[v]["scores"]:
-                son_scores = T[v]["children"][0]
-                daughter_scores = T[v]["children"][1]
+                son_name = T[v]["children"][0]
+                daughter_name = T[v]["children"][1]
 
                 # Find the parsimony score for this nucleotide
-                nuc_score = find_parsimony(son_scores, daughter_scores, nuc)
+                nuc_score = find_parsimony(T[son_name], T[daughter_name], nuc)
                 T[v]["scores"][nuc] = nuc_score
     
-    return min(T[root]["scores"].values())
+    # Go back down the tree
+    for v in T:
+        if T[v]["children"] == []:
+
     
+    return min(T[root]["scores"].values())  
 
 # Myesha
-def find_parsimony():
-    pass
+def find_parsimony(son_node, daughter_node, nuc: str) -> int:
+    son = copy.deepcopy(son_node["scores"])
+    daughter = copy.deepcopy(daughter_node["scores"])
+
+    for n in son:
+        if n != nuc:
+            son[n] += 1
+
+    for n in daughter:
+        if n != nuc:
+            daughter[n] += 1
+
+    # Minimum score for son and daughter
+    son_min = min(son.values())
+    daughter_min = min(daughter.values())
+
+    # Find best nucleotide
+    son_nuc = min(son, key=son.get)
+    daughter_nuc = min(daughter, key=daughter.get)
+
+    # Set nuc choice to best nuc
+    son_node["nuc_choices"][nuc] = son_nuc
+    daughter_node["nuc_choices"][nuc] = daughter_nuc
+
+    return son_min + daughter_min
 
 def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
     T = {}
     attr_dict = {"children": [],
                  "ripe" : True,
                  "sequence" : "",
-                 "scores" : {"A" : 99999, "C" : 99999, "G" : 99999, "T" : 99999}
+                 "scores" : {"A" : 99999, "C" : 99999, "G" : 99999, "T" : 99999}, 
+                 "nuc_choices" : {"A" : "", "C" : "", "G" : "", "T" : ""}
                  }
     
     # Loop through adjacency list and create a dictionary T
