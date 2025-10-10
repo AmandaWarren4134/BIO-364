@@ -1,7 +1,6 @@
 import argparse
 #import numpy as np
 import copy
-from functools import partial
 from typing import Dict, Tuple, List
 
 
@@ -38,28 +37,45 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
             T[v]["ripe"] = False
             ripe_set.remove(v)
             for nuc in T[v]["scores"]:
-                son_scores = T[v]["children"][0]
-                daughter_scores = T[v]["children"][1]
+                son_name = T[v]["children"][0]
+                daughter_name = T[v]["children"][1]
 
                 # Find the parsimony score for this nucleotide
-                nuc_score = find_parsimony(son_scores, daughter_scores, nuc)
+                nuc_score = find_parsimony(T[son_name], T[daughter_name], nuc)
                 T[v]["scores"][nuc] = nuc_score
     
-    return min(T[root]["scores"].values())
+    # Go back down the tree
+    for v in T:
+        if T[v]["children"] == []:
+
     
+    return min(T[root]["scores"].values())  
 
 # Myesha
-def find_parsimony(son_scores: Dict[str, int], daughter_scores: Dict[str, int], nuc: str) -> int:
-    son = copy.deepcopy(son_scores)
-    daughter = copy.deepcopy(daughter_scores)
+def find_parsimony(son_node, daughter_node, nuc: str) -> int:
+    son = copy.deepcopy(son_node["scores"])
+    daughter = copy.deepcopy(daughter_node["scores"])
+
     for n in son:
         if n != nuc:
             son[n] += 1
+
     for n in daughter:
         if n != nuc:
             daughter[n] += 1
+
+    # Minimum score for son and daughter
     son_min = min(son.values())
     daughter_min = min(daughter.values())
+
+    # Find best nucleotide
+    son_nuc = min(son, key=son.get)
+    daughter_nuc = min(daughter, key=daughter.get)
+
+    # Set nuc choice to best nuc
+    son_node["nuc_choices"][nuc] = son_nuc
+    daughter_node["nuc_choices"][nuc] = daughter_nuc
+
     return son_min + daughter_min
 
 def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
@@ -67,7 +83,8 @@ def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
     attr_dict = {"children": [],
                  "ripe" : True,
                  "sequence" : "",
-                 "scores" : {"A" : 99999, "C" : 99999, "G" : 99999, "T" : 99999}
+                 "scores" : {"A" : 99999, "C" : 99999, "G" : 99999, "T" : 99999}, 
+                 "nuc_choices" : {"A" : "", "C" : "", "G" : "", "T" : ""}
                  }
     
     # Loop through adjacency list and create a dictionary T
@@ -83,26 +100,35 @@ def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
 
 # AMANDA
 # Take the input .txt file and parse it to grab the integer and create a dictionary
-def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, str]]:
+def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, List[str]]]:
+    # Take the first line as n
     n = int(input_lines[0].strip())
-    edge_dict: Dict[str, str] = {}
+    edge_dict: Dict[str, List[str]] = {}
 
+    # Each line is in the format 4->ACCTGCAGCTCA
+    # Split on the -> and save everything it points to to an adjacency list
     for line in input_lines[1:]:
         node, rest = line.strip().split("->")
-        edge_dict[node] = str()
+        if node not in edge_dict:
+            edge_dict[node] = [rest]
+        else:
+            edge_dict[node].append(rest)
 
     return n, edge_dict
 
 def main():
-    # parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
-    # parser.add_argument("input_file", help="Path to input file.")
+    parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
+    parser.add_argument("input_file", help="Path to input file.")
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
-    # with open(args.input_file, 'r') as file:
-    #     input_data = file.readlines()
+    with open(args.input_file, 'r') as file:
+        input_data = file.readlines()
     
-    # n, edge_dict = process_lines(input_data)
+    n, edge_dict = process_lines(input_data)
+
+    print("N: ", n)
+    print("Edge_dict: ", edge_dict)
 
     # tree = {
     # "4": ["CAAATCCC", "ATTGCGAC"],
@@ -110,13 +136,6 @@ def main():
     # "6": ["4", "5"]
     # }
     # print(build_T(tree))
-
-    scores_1 = {"A" : 1, "C" : 1, "G" : 2, "T" : 2}
-    scores_2 = {"A" : 2, "C" : 1, "G" : 1, "T" : 2}
-    print(find_parsimony(scores_1, scores_2, 'A'))
-    print(find_parsimony(scores_1, scores_2, 'C'))
-    print(find_parsimony(scores_1, scores_2, 'G'))
-    print(find_parsimony(scores_1, scores_2, 'T'))
 
 if __name__ == "__main__":
     main()
