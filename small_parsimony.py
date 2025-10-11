@@ -9,7 +9,7 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
     T = build_T(adj_list)
 
     # Create a set of ripeness
-    ripe_set = copy.deepcopy(T.keys())
+    ripe_set = set(T.keys())
 
     root = ""
 
@@ -45,11 +45,40 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
                 T[v]["scores"][nuc] = nuc_score
     
     # Go back down the tree
-    for v in T:
-        if T[v]["children"] == []:
 
-    
-    return min(T[root]["scores"].values())  
+
+    root_nuc = min(T[root], key=T[root]["scores"].get)
+    T[root]["sequence"].append(root_nuc)
+
+    set_lowest_nucs(root_nuc, root, T)
+
+    print(T)
+
+    return min(T[root]["scores"].values())
+
+def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
+
+    if T[node]["children"] == []:
+        return
+
+    son_name = T[node]["children"][0]
+    daughter_name = T[node]["children"][1]
+
+    son_nuc = T[son_name]["nuc_choices"][parent_nuc]
+    daughter_nuc = T[daughter_name]["nuc_choices"][parent_nuc]
+
+    T[son_name]["sequence"].append(son_nuc)
+    T[daughter_name]["sequence"].append(daughter_nuc)
+
+    clear_nuc_choices(T[son_name]["nuc_choices"])
+    clear_nuc_choices(T[daughter_name]["nuc_choices"])
+
+    set_lowest_nucs(son_nuc, son_name, T)
+    set_lowest_nucs(daughter_nuc, daughter_name, T)
+
+def clear_nuc_choices(choices_dict: Dict[str, str]) -> None:
+    for nuc in choices_dict:
+        choices_dict[nuc] = ""
 
 # Myesha
 def find_parsimony(son_node, daughter_node, nuc: str) -> int:
@@ -117,25 +146,26 @@ def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, List[str]]]:
     return n, edge_dict
 
 def main():
-    parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
-    parser.add_argument("input_file", help="Path to input file.")
+    # parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
+    # parser.add_argument("input_file", help="Path to input file.")
+    #
+    # args = parser.parse_args()
+    #
+    # with open(args.input_file, 'r') as file:
+    #     input_data = file.readlines()
+    #
+    # n, edge_dict = process_lines(input_data)
+    #
+    # print("N: ", n)
+    # print("Edge_dict: ", edge_dict)
 
-    args = parser.parse_args()
-
-    with open(args.input_file, 'r') as file:
-        input_data = file.readlines()
-    
-    n, edge_dict = process_lines(input_data)
-
-    print("N: ", n)
-    print("Edge_dict: ", edge_dict)
-
-    # tree = {
-    # "4": ["CAAATCCC", "ATTGCGAC"],
-    # "5": ["CTGCGCTG", "ATGGACGA"],
-    # "6": ["4", "5"]
-    # }
-    # print(build_T(tree))
+    tree = {
+    "4": ["CAAATCCC", "ATTGCGAC"],
+    "5": ["CTGCGCTG", "ATGGACGA"],
+    "6": ["4", "5"]
+    }
+    print(build_T(tree))
+    print(calculate_small_parsimony(4, tree))
 
 if __name__ == "__main__":
     main()
