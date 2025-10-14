@@ -8,53 +8,85 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
     # Convert adj_list to T
     T = build_T(adj_list)
 
-    # Create a set of ripeness
-    ripe_set = set(T.keys())
-
     root = ""
+    final_score = 0
+
+    # Find the root
+    all_children = []
+    for node, child_list in adj_list.items():
+        for child in child_list:
+            all_children.append(child)
+    
+    for node in adj_list:
+        if node not in all_children:
+            root = node
+
+    # Find the length of a leaf node sequence
+    seq_len = 0
+    for child_list in adj_list.values():
+        if len(child_list[0]) > seq_len:
+            seq_len = len(child_list[0])
 
     # Loop through each nucleotide in the sequence
-    # FIX THIS LATER
-    i = 0
+    for i in range(seq_len):
 
-    # Instantiate leaf nodes as 0 and infinty
-    for v in T:
-        if (T[v]["children"] == []):
-            # Set leaf nodes as unripe and remove them from set
-            T[v]["ripe"] = False
-            ripe_set.remove(v)
-            for nuc in T[v]["scores"]:
-                if (nuc == v[i]): # DEBUG: Check if this works or if it should be T[v].tostring()[i]
-                    T[v]["scores"][nuc] = 0
-    
-    while (ripe_set):
-        # If there is one node left, label it as the root
-        if (len(ripe_set) == 1):
-            root = ripe_set[0]
+        # Create a set of ripeness
+        ripe_set = set(T.keys())
 
-        # If both children are unripe, then 
-        if ():
-            T[v]["ripe"] = False
-            ripe_set.remove(v)
-            for nuc in T[v]["scores"]:
-                son_name = T[v]["children"][0]
-                daughter_name = T[v]["children"][1]
+        # Instantiate leaf nodes as 0 and infinty
+        for v in T:
+            if (T[v]["children"] == []):
+                # Set leaf nodes as unripe and remove them from set
+                T[v]["ripe"] = False
+                ripe_set.remove(v)
+                for nuc in T[v]["scores"]:
+                    if (nuc == v[i]):
+                        T[v]["scores"][nuc] = 0
+                    else:
+                        T[v]["scores"][nuc] = 99999
+        
+        while (ripe_set):
+            v = ripe_set.pop()
+            # # If there is one node left, label it as the root
+            # if (len(ripe_set) == 1):
+            #     root = v
 
-                # Find the parsimony score for this nucleotide
-                nuc_score = find_parsimony(T[son_name], T[daughter_name], nuc)
-                T[v]["scores"][nuc] = nuc_score
-    
-    # Go back down the tree
+            son_ripeness = T[T[v]["children"][0]]["ripe"]
+            daughter_ripeness = T[T[v]["children"][1]]["ripe"]
 
+            # If both children are unripe, then 
+            if ((not son_ripeness) and (not daughter_ripeness)):
+                T[v]["ripe"] = False
+                
+                for nuc in T[v]["scores"]:
+                    son_name = T[v]["children"][0]
+                    daughter_name = T[v]["children"][1]
 
-    root_nuc = min(T[root], key=T[root]["scores"].get)
-    T[root]["sequence"].append(root_nuc)
+                    # Find the parsimony score for this nucleotide
+                    nuc_score = find_parsimony(T[son_name], T[daughter_name], nuc)
+                    #DEBUG
+                    # print(f"Ripe set: ", ripe_set)
+                    # print(f"Nuc parsimony score: {nuc_score}\t Current node: {v}\t Nuc: {nuc}\n")
+                    T[v]["scores"][nuc] = nuc_score
+            else:
+                # Add to the beginning of ripe list
+                ripe_set.add(v)
 
-    set_lowest_nucs(root_nuc, root, T)
+        # Reset all nodes to ripe
+        for v in T:
+            T[v]["ripe"] == True
 
-    print(T)
+        # Go back down the tree
+        root_nuc = min(T[root]["scores"], key=T[root]["scores"].get)
+        T[root]["sequence"] += root_nuc
 
-    return min(T[root]["scores"].values())
+        set_lowest_nucs(root_nuc, root, T)
+
+        final_score += min(T[root]["scores"].values())
+        print("Final score: ", final_score)
+        print("Root ", root)
+
+    return final_score
 
 def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
 
@@ -67,8 +99,8 @@ def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
     son_nuc = T[son_name]["nuc_choices"][parent_nuc]
     daughter_nuc = T[daughter_name]["nuc_choices"][parent_nuc]
 
-    T[son_name]["sequence"].append(son_nuc)
-    T[daughter_name]["sequence"].append(daughter_nuc)
+    T[son_name]["sequence"] += son_nuc
+    T[daughter_name]["sequence"] += daughter_nuc
 
     clear_nuc_choices(T[son_name]["nuc_choices"])
     clear_nuc_choices(T[daughter_name]["nuc_choices"])
@@ -164,7 +196,7 @@ def main():
     "5": ["CTGCGCTG", "ATGGACGA"],
     "6": ["4", "5"]
     }
-    print(build_T(tree))
+    #print(build_T(tree))
     print(calculate_small_parsimony(4, tree))
 
 if __name__ == "__main__":
