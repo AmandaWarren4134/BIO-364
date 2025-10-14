@@ -4,7 +4,7 @@ import copy
 from typing import Dict, Tuple, List
 
 
-def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[int, Dict[str, List]]:
+def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[int, Dict[str, int]]:
     # Convert adj_list to T
     T = build_T(adj_list)
 
@@ -87,6 +87,26 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
         print("Root ", root)
 
     return final_score
+
+# MYESHA
+def format_output_dict(T) -> Dict[str, int]:
+    # Each entry has the format ACTGATCACTA->ACTAGCTACGA:2
+    output_dict = {}
+    for v in T:
+        son_length = hammingDistance(v, v["children"][0])
+        daughter_length = hammingDistance(v, v["children"][1])
+        f"{v}->{v["children"][0]}"
+
+def hammingDistance(pattern: str, string: str) -> int:
+    d = 0
+    for i in range(len(pattern)):
+        if pattern[i] != string[i]:
+            d += 1
+    return d
+
+# AMANDA
+def dict_to_string(output_dict: Dict[str, int]) -> str:
+    pass
 
 def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
 
