@@ -47,7 +47,7 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
     # Go back down the tree
     for v in T:
         if T[v]["children"] == []:
-
+            pass
     
     return min(T[root]["scores"].values())  
 
