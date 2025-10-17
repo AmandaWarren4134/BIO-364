@@ -3,6 +3,8 @@ import argparse
 import copy
 from typing import Dict, Tuple, List
 
+from setuptools.dist import sequence
+
 
 def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[int, Dict[str, int]]:
     # Convert adj_list to T
@@ -86,16 +88,54 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
         print("Final score: ", final_score)
         print("Root ", root)
 
-    return final_score
+    final_tree = format_output_dict(T)
+
+    return final_score, final_tree
 
 # MYESHA
 def format_output_dict(T) -> Dict[str, int]:
     # Each entry has the format ACTGATCACTA->ACTAGCTACGA:2
+
+    t: Dict[str, list[str]] = {}
     output_dict = {}
     for v in T:
-        son_length = hammingDistance(v, v["children"][0])
-        daughter_length = hammingDistance(v, v["children"][1])
-        f"{v}->{v["children"][0]}"
+        if len(T[v]['sequence']) > 0: #not a sequence / leaf node
+            print(T[v]['sequence'])
+            # t[T[v]['sequence']] = copy.deepcopy(T[v])
+            # t[T[v]['sequence']] = copy.deepcopy(T[v]['children'])
+            # if len(T[v]['children'][0]) < len(T[v]['sequence']):
+            #     t[v]['children'][0] = T[T[v]['children'][0]]['sequence']
+            # if len(T[v]['children'][1]) < len(T[v]['sequence']):
+            #     t[v]['children'][1] = T[T[v]['children'][1]]['sequence']
+            children: list[str] = []
+            for child in T[v]['children']:
+                if len(T[child]['sequence']) > 0:
+                    children.append(T[child]['sequence'])
+                else:
+                    children.append(child)
+            t[T[v]['sequence']] = children
+        else:
+            # t[v] = copy.deepcopy(T[v])
+            # t[v] = copy.deepcopy(T[v]['children'])
+            t[v] = []
+        # print(t.keys())
+    print(T.keys())
+    print(t.keys())
+    print(t)
+
+    for v in t:
+        print(t[v])
+        if len(t[v]['children']) > 0:
+            print(v)
+            print(t[v]["children"][0])
+            son_length = hammingDistance(v, t[v]["children"][0])
+            daughter_length = hammingDistance(v, t[v]["children"][1])
+            output_dict[f"{v}->{t[v]['children'][0]}"] = son_length
+            output_dict[f"{t[v]['children'][0]}->{v}"] = son_length
+            output_dict[f"{v}->{t[v]['children'][1]}"] = daughter_length
+            output_dict[f"{t[v]['children'][1]}->{v}"] = daughter_length
+
+    return output_dict
 
 def hammingDistance(pattern: str, string: str) -> int:
     d = 0
