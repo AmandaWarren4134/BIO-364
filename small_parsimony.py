@@ -99,14 +99,7 @@ def format_output_dict(T) -> Dict[str, int]:
     t: Dict[str, list[str]] = {}
     output_dict = {}
     for v in T:
-        if len(T[v]['sequence']) > 0: #not a sequence / leaf node
-            print(T[v]['sequence'])
-            # t[T[v]['sequence']] = copy.deepcopy(T[v])
-            # t[T[v]['sequence']] = copy.deepcopy(T[v]['children'])
-            # if len(T[v]['children'][0]) < len(T[v]['sequence']):
-            #     t[v]['children'][0] = T[T[v]['children'][0]]['sequence']
-            # if len(T[v]['children'][1]) < len(T[v]['sequence']):
-            #     t[v]['children'][1] = T[T[v]['children'][1]]['sequence']
+        if len(T[v]['sequence']) > 0: #has a sequence / not a leaf node
             children: list[str] = []
             for child in T[v]['children']:
                 if len(T[child]['sequence']) > 0:
@@ -115,25 +108,16 @@ def format_output_dict(T) -> Dict[str, int]:
                     children.append(child)
             t[T[v]['sequence']] = children
         else:
-            # t[v] = copy.deepcopy(T[v])
-            # t[v] = copy.deepcopy(T[v]['children'])
             t[v] = []
-        # print(t.keys())
-    print(T.keys())
-    print(t.keys())
-    print(t)
 
     for v in t:
-        print(t[v])
-        if len(t[v]['children']) > 0:
-            print(v)
-            print(t[v]["children"][0])
-            son_length = hammingDistance(v, t[v]["children"][0])
-            daughter_length = hammingDistance(v, t[v]["children"][1])
-            output_dict[f"{v}->{t[v]['children'][0]}"] = son_length
-            output_dict[f"{t[v]['children'][0]}->{v}"] = son_length
-            output_dict[f"{v}->{t[v]['children'][1]}"] = daughter_length
-            output_dict[f"{t[v]['children'][1]}->{v}"] = daughter_length
+        if len(t[v]) > 0:
+            son_length = hammingDistance(v, t[v][0])
+            daughter_length = hammingDistance(v, t[v][1])
+            output_dict[f"{v}->{t[v][0]}"] = son_length
+            output_dict[f"{t[v][0]}->{v}"] = son_length
+            output_dict[f"{v}->{t[v][1]}"] = daughter_length
+            output_dict[f"{t[v][1]}->{v}"] = daughter_length
 
     return output_dict
 
