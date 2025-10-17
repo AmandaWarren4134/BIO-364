@@ -3,7 +3,7 @@ import argparse
 import copy
 from typing import Dict, Tuple, List
 
-from setuptools.dist import sequence
+# from setuptools.dist import sequence
 
 
 def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[int, Dict[str, int]]:
@@ -85,8 +85,8 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
         set_lowest_nucs(root_nuc, root, T)
 
         final_score += min(T[root]["scores"].values())
-        print("Final score: ", final_score)
-        print("Root ", root)
+        # print("Final score: ", final_score)
+        # print("Root ", root)
 
     final_tree = format_output_dict(T)
 
@@ -129,8 +129,11 @@ def hammingDistance(pattern: str, string: str) -> int:
     return d
 
 # AMANDA
-def dict_to_string(output_dict: Dict[str, int]) -> str:
-    pass
+def dict_to_string(score: int, output_dict: Dict[str, int]) -> str:
+    output_string = f"{score}\n"
+    for k, v in output_dict.items():
+        output_string += f"{k}:{v}\n"
+    return output_string
 
 def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
 
@@ -211,7 +214,7 @@ def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, List[str]]]:
     edge_dict: Dict[str, List[str]] = {}
 
     # Each line is in the format 4->ACCTGCAGCTCA
-    # Split on the -> and save everything it points to to an adjacency list
+    # Split on the -> and save everything it points to an adjacency list
     for line in input_lines[1:]:
         node, rest = line.strip().split("->")
         if node not in edge_dict:
@@ -222,18 +225,21 @@ def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, List[str]]]:
     return n, edge_dict
 
 def main():
-    # parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
-    # parser.add_argument("input_file", help="Path to input file.")
-    #
-    # args = parser.parse_args()
-    #
-    # with open(args.input_file, 'r') as file:
-    #     input_data = file.readlines()
-    #
-    # n, edge_dict = process_lines(input_data)
-    #
+    parser = argparse.ArgumentParser(description="Process edge-weighted graph.")
+    parser.add_argument("input_file", help="Path to input file.")
+
+    args = parser.parse_args()
+
+    with open(args.input_file, 'r') as file:
+        input_data = file.readlines()
+
+    n, edge_dict = process_lines(input_data)
+
     # print("N: ", n)
     # print("Edge_dict: ", edge_dict)
+
+    score, final_dict = calculate_small_parsimony(n, edge_dict)
+    print(dict_to_string(score, final_dict))
 
     tree = {
     "4": ["CAAATCCC", "ATTGCGAC"],
@@ -241,7 +247,9 @@ def main():
     "6": ["4", "5"]
     }
     #print(build_T(tree))
-    print(calculate_small_parsimony(4, tree))
+    # print(calculate_small_parsimony(4, tree))
+
+
 
 if __name__ == "__main__":
     main()
