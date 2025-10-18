@@ -143,10 +143,7 @@ def hammingDistance(pattern: str, string: str) -> int:
         if pattern[i] != string[i]:
             d += 1
     return d
-
-# AMANDA
-def dict_to_string(output_dict: Dict[str, int]) -> str:
-    pass
+    
 
 def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
 
@@ -172,7 +169,6 @@ def clear_nuc_choices(choices_dict: Dict[str, str]) -> None:
     for nuc in choices_dict:
         choices_dict[nuc] = ""
 
-# Myesha
 def find_parsimony(son_node, daughter_node, nuc: str) -> int:
     son = copy.deepcopy(son_node["scores"])
     daughter = copy.deepcopy(daughter_node["scores"])
@@ -206,7 +202,7 @@ def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
                  "sequence" : "",
                  "scores" : {"A" : 99999, "C" : 99999, "G" : 99999, "T" : 99999}, 
                  "nuc_choices" : {"A" : "", "C" : "", "G" : "", "T" : ""}
-                 }
+                }
     
     # Loop through adjacency list and create a dictionary T
     for node in adj_list:
@@ -219,7 +215,6 @@ def build_T(adj_list: Dict[str, List[str]]) -> Dict[str, List[Dict]]:
 
     return T
 
-# AMANDA
 # Take the input .txt file and parse it to grab the integer and create a dictionary
 def process_lines(input_lines: List[str]) -> Tuple[int, Dict[str, List[str]]]:
     # Take the first line as n
