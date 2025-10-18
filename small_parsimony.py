@@ -25,9 +25,11 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
 
     # Find the length of a leaf node sequence
     seq_len = 0
-    for child_list in adj_list.values():
-        if len(child_list[0]) > seq_len:
-            seq_len = len(child_list[0])
+    for node in adj_list:
+        for child in adj_list[node]:
+            if all(c in "ACGT" for c in child):
+                seq_len = len(child)
+                break
 
     # Loop through each nucleotide in the sequence
     for i in range(seq_len):
@@ -56,20 +58,15 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
             son_ripeness = T[T[v]["children"][0]]["ripe"]
             daughter_ripeness = T[T[v]["children"][1]]["ripe"]
 
-            # If both children are unripe, then 
+            # Process a node only after both children have been processed (unripe)
+            # Check whether both children are not ripe and process the node
             if ((not son_ripeness) and (not daughter_ripeness)):
-                T[v]["ripe"] = False
-                
                 for nuc in T[v]["scores"]:
                     son_name = T[v]["children"][0]
                     daughter_name = T[v]["children"][1]
-
-                    # Find the parsimony score for this nucleotide
-                    nuc_score = find_parsimony(T[son_name], T[daughter_name], nuc)
-                    #DEBUG
-                    # print(f"Ripe set: ", ripe_set)
-                    # print(f"Nuc parsimony score: {nuc_score}\t Current node: {v}\t Nuc: {nuc}\n")
-                    T[v]["scores"][nuc] = nuc_score
+                    T[v]["scores"][nuc] = find_parsimony(T[son_name], T[daughter_name], nuc)
+                T[v]["ripe"] = False
+                
             else:
                 # Add to the beginning of ripe list
                 ripe_set.add(v)
@@ -92,32 +89,25 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
 
     return final_score, final_tree
 
-# MYESHA
 def format_output_dict(T) -> Dict[str, int]:
     # Each entry has the format ACTGATCACTA->ACTAGCTACGA:2
-
-    t: Dict[str, list[str]] = {}
     output_dict = {}
-    for v in T:
-        if len(T[v]['sequence']) > 0: #has a sequence / not a leaf node
-            children: list[str] = []
-            for child in T[v]['children']:
-                if len(T[child]['sequence']) > 0:
-                    children.append(T[child]['sequence'])
-                else:
-                    children.append(child)
-            t[T[v]['sequence']] = children
-        else:
-            t[v] = []
+    label_to_sequence: Dict[str, str] = {}
 
-    for v in t:
-        if len(t[v]) > 0:
-            son_length = hammingDistance(v, t[v][0])
-            daughter_length = hammingDistance(v, t[v][1])
-            output_dict[f"{v}->{t[v][0]}"] = son_length
-            output_dict[f"{t[v][0]}->{v}"] = son_length
-            output_dict[f"{v}->{t[v][1]}"] = daughter_length
-            output_dict[f"{t[v][1]}->{v}"] = daughter_length
+    for node, data in T.items():
+        if data["sequence"]: # if it is an internal node
+            label_to_sequence[node] = data["sequence"]
+        else:
+            label_to_sequence[node] = node # leaf node is already a sequence
+
+    for parent, data in T.items():
+        parent_seq = label_to_sequence[parent]
+        for child in data["children"]:
+            child_seq = label_to_sequence[child]
+            dist = hammingDistance(parent_seq, child_seq)
+
+            output_dict[f"{parent_seq}->{child_seq}"] = dist
+            output_dict[f"{child_seq}->{parent_seq}"] = dist
 
     return output_dict
 
