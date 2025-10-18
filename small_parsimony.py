@@ -1,5 +1,5 @@
 import argparse
-#import numpy as np
+import os
 import copy
 from typing import Dict, Tuple, List
 
@@ -76,7 +76,7 @@ def calculate_small_parsimony(n: int, adj_list: Dict[str, List[str]]) -> Tuple[i
 
         # Reset all nodes to ripe
         for v in T:
-            T[v]["ripe"] == True
+            T[v]["ripe"] = True
 
         # Go back down the tree
         root_nuc = min(T[root]["scores"], key=T[root]["scores"].get)
@@ -133,7 +133,6 @@ def hammingDistance(pattern: str, string: str) -> int:
         if pattern[i] != string[i]:
             d += 1
     return d
-    
 
 def set_lowest_nucs(parent_nuc: str, node: str, T) -> None:
 
@@ -233,20 +232,16 @@ def main():
 
     n, edge_dict = process_lines(input_data)
 
-    # print("N: ", n)
-    # print("Edge_dict: ", edge_dict)
-
     score, final_dict = calculate_small_parsimony(n, edge_dict)
-    print(dict_to_string(score, final_dict))
+    output = dict_to_string(score, final_dict)
 
-    tree = {
-    "4": ["CAAATCCC", "ATTGCGAC"],
-    "5": ["CTGCGCTG", "ATGGACGA"],
-    "6": ["4", "5"]
-    }
-    #print(build_T(tree))
-    # print(calculate_small_parsimony(4, tree))
+    # Create an output directory if it doesn't already exist
+    if not os.path.exists("outputs"):
+        os.makedirs("outputs")
 
+    with open('outputs/parsimony_output.txt', 'w') as f:
+        f.write(output)
+    
 
 
 if __name__ == "__main__":
