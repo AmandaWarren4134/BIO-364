@@ -121,6 +121,12 @@ def format_output_dict(T) -> Dict[str, int]:
 
     return output_dict
 
+def dict_to_string(score: int, output_dict: Dict[str, int]) -> str:
+    output_string = f"{score}\n"
+    for k, v in output_dict.items():
+        output_string += f"{k}:{v}\n"
+    return output_string
+
 def hammingDistance(pattern: str, string: str) -> int:
     d = 0
     for i in range(len(pattern)):
