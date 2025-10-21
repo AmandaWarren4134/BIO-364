@@ -13,9 +13,7 @@ def nearest_neighbors(edge:List[str], tree: Dict[str, List[str]]):
     # Identify internal edge nodes
     node_A = edge[0]
     node_B = edge[1]
-    print("A: ", node_A)
-    print("B: ", node_B)
-    print(tree)
+
     # Pop internal edge nodes to end of adjacency list
     tree[node_A].remove(node_B)
     tree[node_A].append(node_B)
@@ -33,58 +31,37 @@ def nearest_neighbors(edge:List[str], tree: Dict[str, List[str]]):
     switch1 = tree[node_B][0]
     switch2 = tree[node_B][1]
 
-    print("Switch: ", switch_node)
-    print("Switch1: ", switch1)
-    print("Switch2: ", switch2)
-
     neighbor1[switch_node].remove(node_A)
     neighbor1[switch_node].append(node_A)
     neighbor2[switch_node].remove(node_A)
     neighbor2[switch_node].append(node_A)
 
     # Forward edge
-    # print(neighbor1[switch_node][-1])
-    # print(neighbor2[switch_node][-1])
     neighbor1[switch_node][-1] = node_B
     neighbor2[switch_node][-1] = node_B
-    # print(neighbor1[switch_node][-1])
-    # print(neighbor2[switch_node][-1])
 
     print(neighbor1)
-    # print(neighbor2)
 
     # Backward edge
     neighbor1[node_B][0] = switch_node
     neighbor2[node_B][1] = switch_node
 
     print(neighbor1)
-    # print(neighbor2)
 
     neighbor1[switch1].remove(node_B)
     neighbor1[switch1].append(node_B)
     neighbor2[switch2].remove(node_B)
     neighbor2[switch2].append(node_B)
 
-    # print(neighbor1[switch1][-1])
-    # print(neighbor2[switch2][-1])
     neighbor1[switch1][-1] = node_A
     neighbor2[switch2][-1] = node_A
-    # print(neighbor1[switch1][-1])
-    # print(neighbor2[switch2][-1])
-
-    print(neighbor1)
-    # print(neighbor2)
 
     neighbor1[node_A][1] = switch1
     neighbor2[node_A][1] = switch2
 
-    print(neighbor1)
-    # print(neighbor2)
-
     return neighbor1, neighbor2
 
 def parse_input(input_lines: List[str]) -> Tuple[List[str], Dict[str, List[str]]]:
-    print("INPUT: ", input_lines[0].strip().split(" "))
     edge = input_lines[0].strip().split(" ")
     tree_dict: Dict[str, List[str]] = {}
 
@@ -133,7 +110,6 @@ def main():
     output = print_neighbors(nearest_neighbors(edge, tree))
 
     print(output)
-    pass
 
 if __name__ == "__main__":
     main()
