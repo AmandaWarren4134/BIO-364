@@ -2,5 +2,7 @@
 /reconstruction_read_pairs.py
 /neighbor_joining
 /burrows_wheeler
+/hidden_markov
+/viterbi
 unrooted_*
 launch.json
